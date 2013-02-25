@@ -33,6 +33,19 @@ module Gui
     end
   end
   
+  class Scale
+    attr_reader :obj
+    
+    def initialize(parent, options)
+      min  = options[:min] || 0
+      max  = options[:max] || 100
+      step = options[:step] || (max-min).to_f/100
+      @obj = Gtk::HScale.new(min, max, step)
+      @obj.value_pos = Gtk::POS_RIGHT
+      parent.add(self)
+    end
+  end
+
   module Container
     attr_reader :root
     
@@ -46,23 +59,23 @@ module Gui
     end
     
     def button(name = nil, hash = {})
-      hash = name if name.is_a?(Hash)
-      hash = {:text => hash} unless hash.is_a?(Hash)
-      hash[:text] = name if name.is_a?(String) && hash[:text].nil?
-      btn = Button.new(self, hash[:text])
-      @root.define_child(name, btn)
-      btn
+      create_child(name, hash) do |hash|
+        Button.new(self, hash[:text])
+      end
     end
   
     def progress(name = nil, hash = {})
-      hash = name if name.is_a?(Hash)
-      hash = {:text => hash} unless hash.is_a?(Hash)
-      hash[:text] = name if name.is_a?(String) && hash[:text].nil?
-      bar = ProgressBar.new(self, 100, hash[:text])
-      @root.define_child(name, bar)
-      bar
+      create_child(name, hash) do |hash|
+        ProgressBar.new(self, 100, hash[:text])
+      end
     end
-  
+    
+    def scale(name = nil, hash = {})
+      create_child(name, hash) do |hash|
+        Scale.new(self, hash)
+      end
+    end
+    
     def hbox(&block)
       hbox = HBox.new(@root, self)
       hbox.instance_eval(&block)

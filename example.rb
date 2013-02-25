@@ -25,6 +25,8 @@ win.build do
         bar3.set(100)
       end
     end
+    
+    scale(:s)
   end
 end
 
